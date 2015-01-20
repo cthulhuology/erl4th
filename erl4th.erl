@@ -48,6 +48,25 @@ eval(Ins,Stack,Return,Dict) ->
 		X when is_atom(X) -> 
 			{ X, NewOps } = proplists:lookup(X,Dict),
 			eval( NewOps, Stack, [ Rem | Return ], Dict );
+	%% stack manipulation
+		'push' ->
+			[ Top | Rest ] = Stack,
+			eval(Rem, Rest, [ Top | Return ], Dict );
+		'pop' ->
+			[ Rops | RetRem ] = Return,
+			eval(Rem, [ Rops | Stack ], RetRem, Dict );
+		'dup' ->
+			[ Top | Rest ] = Stack,
+			eval(Rem, [ Top, Stack ], Return, Dict );
+		'over' ->
+			[ Top, Next | Rest ] = Stack,
+			eval(Rem, [ Next, Stack ], Return, Dict );
+		'drop' ->
+			[ Top | Rest ] = Stack,
+			eval(Rem, Rest, Return, Dict );
+		'nip' ->
+			[ Top, Next | Rest ] = Stack,
+			eval(Rem, [ Top | Rest ], Return, Dict );
 	%% literals
 		X when is_integer(X) -> 
 			eval(Rem, [ X | Stack ], Return, Dict);
